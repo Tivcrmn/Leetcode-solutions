@@ -1,52 +1,35 @@
-// TLS.........
 class Solution {
     public List<Integer> findMinHeightTrees(int n, int[][] edges) {
-        if (n == 0) return new ArrayList<>();
-        Map<Integer, List<Integer>> mapEdges = new HashMap<>();
         List<Integer> res = new ArrayList<>();
-        int minLength = Integer.MAX_VALUE;
+        List<Integer> leaves = new ArrayList<>();
+        HashMap<Integer, Set<Integer>> map = new HashMap<>();
+        if (n <= 0 || edges.length + 1 != n) return res;
+        if (n == 1) {
+            res.add(0);
+            return res;
+        }
         for (int i = 0; i < n; i++) {
-            mapEdges.put(i, new ArrayList<>());
+            map.put(i, new HashSet<Integer>());
         }
         for (int[] edge : edges) {
-            mapEdges.get(edge[0]).add(edge[1]);
-            mapEdges.get(edge[1]).add(edge[0]);
+            map.get(edge[0]).add(edge[1]);
+            map.get(edge[1]).add(edge[0]);
         }
         for (int i = 0; i < n; i++) {
-            Queue<Integer> queue = new LinkedList<>();
-            boolean[] visited = new boolean[n];
-            int length = 0;
-            int size = 1;
-            queue.offer(i);
-            while (!queue.isEmpty()) {
-                length++;
-                if (length > minLength) break;
-                int temp = 0;
-                for (int j = 0; j < size; j++) {
-                    int node = queue.poll();
-                    visited[node] = true;
-                    for (Integer nd : mapEdges.get(node)) {
-                        if (!visited[nd]) {
-                            queue.offer(nd);
-                            temp++;
-                        }
-                    }
-                }
-                size = temp;
-            }
-            if (res.size() == 0 && minLength != Integer.MAX_VALUE) {
-                res.add(i);
-                minLength = length;
-            } else {
-                if (minLength == length) {
-                    res.add(i);
-                } else if (minLength > length) {
-                    res = new ArrayList<>();
-                    res.add(i);
-                    minLength = length;
-                }
-            }
+            if (map.get(i).size() == 1) leaves.add(i);
         }
-        return res;
+        while (n > 2) {
+            List<Integer> newLeaves = new ArrayList<>();
+            for (int leave : leaves) {
+                Set<Integer> nbs = map.get(leave);
+                for (int nb : nbs) {
+                    map.get(nb).remove(leave);
+                    if (map.get(nb).size() == 1) newLeaves.add(nb);
+                }
+                n--;
+            }
+            leaves = newLeaves;
+        }
+        return new ArrayList<>(leaves);
     }
 }
