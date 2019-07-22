@@ -4,8 +4,6 @@ This repo contains all my Leetcode solutions using Java and JavaScript(update la
 
 So if you want to see the answer with the least time complexity and space complexity. I am so sorry. But if you want to see how to solve the problem from the beginning and finally find the best way to solve it. Here might be the shits you want to see.
 
-[Here](https://www.tivarea.top/blog/leetcode/) is my online blog to analyze the Leetcode problems. Hope it will help you!
-
 :calendar::book::airplane:
 
 ### Some funny things
