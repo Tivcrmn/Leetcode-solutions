@@ -1,25 +1,40 @@
 class Solution {
     public String minWindow(String S, String T) {
-        int m = S.length(), n = T.length(), min = S.length() + 1, start = 0;
-        int[][] dp = new int[m + 1][n + 1];
-        for (int i = 0; i <= m; i++) {
-            dp[i][0] = i + 1;
+        int m = S.length(), n = T.length();
+        if (m < n) return "";
+        int minLen = S.length() + 1, start = -1;
+        int[][] dp = new int[m][n];
+        for (int i = 0; i < m; i++) {
+            if (S.charAt(i) == T.charAt(0)) dp[i][0] = i;
+            else if (i > 0) dp[i][0] = dp[i - 1][0];
+            else dp[i][0] = -1;
         }
-        for (int i = 1; i <= m; i++) {
-            for (int j = 1; j <= n; j++) {
-                if (S.charAt(i - 1) == T.charAt(j - 1)) {
+
+        for (int j = 1; j < n; j++) {
+            dp[0][j] = -1;
+        }
+
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                if (i < j) dp[i][j] = -1;
+                else if (S.charAt(i) == T.charAt(j)) {
                     dp[i][j] = dp[i - 1][j - 1];
                 } else {
                     dp[i][j] = dp[i - 1][j];
                 }
             }
         }
-        for (int i = 0; i <= m; i++) {
-            if (i - dp[i][n] + 1 < min) {
-                min = i - dp[i][n] + 1;
-                start = dp[i][n] - 1;
+
+        for (int i = 0; i < m; i++) {
+            if (dp[i][n - 1] != -1) {
+                int len = i - dp[i][n - 1] + 1;
+                if (len < minLen) {
+                    minLen = len;
+                    start = dp[i][n - 1];
+                }
             }
         }
-        return min == S.length() + 1 ? "" : S.substring(start, start + min);
+
+        return start == -1 ? "" : S.substring(start, start + minLen);
     }
 }

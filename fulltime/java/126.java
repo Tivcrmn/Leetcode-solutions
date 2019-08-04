@@ -1,70 +1,64 @@
 class Solution {
+    Set<String> wordSet;
+    List<List<String>> res;
+    Map<String, Integer> map;
+    Map<String, List<String>> nextWordsSet;
     public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
-        // TLE.. fix later
-        Set<String> wordSet = new HashSet<>();
-        List<List<String>> res = new ArrayList<>();
-        for (String word : wordList) {
-            wordSet.add(word);
-        }
+        wordSet = new HashSet<>(wordList);
+        res = new ArrayList<>();
         if (!wordSet.contains(endWord)) return res;
+        if (!wordList.contains(beginWord)) {
+            wordSet.add(beginWord);
+        }
         // bfs to find the shortest length
         Queue<String> queue = new LinkedList<>();
+        map = new HashMap<>();
+        nextWordsSet = new HashMap<>();
         int len = 0;
-        Set<String> visited = new HashSet<>();
-        visited.add(beginWord);
-        queue.offer(beginWord);
-        boolean find = false;
-        while (!queue.isEmpty() && !find) {
+        queue.offer(endWord);
+        map.put(endWord, 0);
+        while (!queue.isEmpty()) {
             int size = queue.size();
             len++;
             for (int i = 0; i < size; i++) {
                 String cur = queue.poll();
-                if (cur.equals(endWord)) {
-                    find = true;
-                    break;
-                }
-                for (String next : getNext(cur, wordSet)) {
-                    if (!visited.contains(next)) {
+                List<String> nextWords = getNextWords(cur, wordSet);
+                nextWordsSet.put(cur, nextWords);
+                for (String next : nextWords) {
+                    if (!map.containsKey(next)) {
                         queue.offer(next);
-                        visited.add(next);
+                        map.put(next, len);
                     }
                 }
             }
         }
-        if (!find) return res;
+
+        if (!map.containsKey(beginWord)) return res;
         // dfs with pruning
         List<String> ans = new ArrayList<>();
-        visited = new HashSet<>();
         ans.add(beginWord);
-        visited.add(beginWord);
-        dfs(beginWord, endWord, visited, len, res, ans, wordSet);
+        dfs(map.get(beginWord) - 1, ans);
         return res;
     }
 
-    private void dfs(String s,
-                     String e,
-                     Set<String> visited,
-                     int len,
-                     List<List<String>> res,
-                     List<String> ans,
-                     Set<String> wordSet) {
-        if (ans.size() >= len) return;
-        for (String next : getNext(s, wordSet)) {
-            if (!visited.contains(next)) {
-                ans.add(next);
-                visited.add(next);
-                if (next.equals(e)) {
-                    res.add(new ArrayList<String>(ans));
-                } else {
-                    dfs(next, e, visited, len, res, ans, wordSet);
-                }
-                visited.remove(next);
+    private void dfs(int len,
+                     List<String> ans) {
+        if (len < 0) {
+            res.add(new ArrayList<>(ans));
+            return;
+        }
+        for (String key : map.keySet()) {
+            List<String> nextWords = nextWordsSet.get(ans.get(ans.size() - 1));
+            Set<String> setWords = new HashSet<>(nextWords);
+            if (map.get(key) == len && setWords.contains(key)) {
+                ans.add(key);
+                dfs(len - 1, new ArrayList<>(ans));
                 ans.remove(ans.size() - 1);
             }
         }
     }
 
-    private List<String> getNext(String s, Set<String> set) {
+    private List<String> getNextWords(String s, Set<String> set) {
         List<String> res = new ArrayList<>();
         StringBuilder sb = new StringBuilder(s);
         for (int i = 0; i < s.length(); i++) {
